@@ -9,13 +9,29 @@ import { useState } from "react";
 import { useEffect } from "react";
 function Auditpage(props) {
   const { user, users } = props;
-
+  const [format, setFormat] = useState(12);
   useEffect(() => {
     props.getUsers();
   }, []);
 
   const handleDeleteUser = (id) => {
     return props.deleteUser(id);
+  };
+
+  const handleTimeFormat = (event) => {
+    setFormat(event.target.value);
+  };
+
+  const formatDate = (date) => {
+    const day = date.split("T")[0].split("-");
+    const formatDay = day[2] + "/" + day[1] + "/" + day[0];
+    const formatTime = new Date(date).toLocaleTimeString("en-US", {
+      timeZone: "UTC",
+      hour12: format !== 12 ? false : true,
+      hour: "numeric",
+      minute: "numeric",
+    });
+    return formatDay + " " + formatTime;
   };
 
   return (
@@ -40,6 +56,11 @@ function Auditpage(props) {
         {users.error && (
           <span className="text-danger">ERROR: {users.error}</span>
         )}
+        <label>Time Format: </label>
+        <select onChange={handleTimeFormat}>
+          <option>12</option>
+          <option>24</option>
+        </select>
         <table className="table-container">
           <thead>
             <tr>
@@ -56,7 +77,7 @@ function Auditpage(props) {
                 <tr>
                   <td className="table-row">{user.id}</td>
                   <td className="table-row">{user.role}</td>
-                  <td className="table-row">{user.createdDate}</td>
+                  <td className="table-row">{formatDate(user.createdDate)}</td>
                   <td className="table-row">
                     {user.firstName + " " + user.lastName}
                   </td>
